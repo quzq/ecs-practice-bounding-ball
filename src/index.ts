@@ -16,6 +16,12 @@ type Entity = number;
 const positions: Position[] = [];
 const velocities: Velocity[] = [];
 
+// FPS計測用の変数
+let lastTime = performance.now();
+let fpsCounter = 0;
+let fpsDisplay = 0;
+let lastFpsUpdate = lastTime;
+
 // システム: すべてのエンティティの位置を更新し、キャンバス境界で反射する
 function update(deltaTime: number, canvas: HTMLCanvasElement): void {
   for (let i = 0; i < positions.length; i++) {
@@ -49,22 +55,27 @@ function render(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  // ボールの色はyellow
+  // エンティティ（ボール）の描画
   ctx.fillStyle = "yellow";
   for (const pos of positions) {
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, 10, 0, 2 * Math.PI);
     ctx.fill();
   }
+
+  // FPS表示（左上に白文字で）
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText(`fps : ${fpsDisplay}`, 10, 30);
 }
 
 // メイン処理とメインループ
 const main = (viewport: HTMLCanvasElement): void => {
   const ctx = viewport.getContext("2d");
   if (!ctx) return;
+  console.log("Hello, ecs!");
 
   // サンプルエンティティの作成
-  // 初期状態は右上（斜め45度）の方向に移動する
   // Entity 0: 通常の速度 vx=50, vy=-50
   positions.push({ x: 50, y: 50 });
   velocities.push({ vx: 50, vy: -50 });
@@ -77,12 +88,18 @@ const main = (viewport: HTMLCanvasElement): void => {
   positions.push({ x: 250, y: 150 });
   velocities.push({ vx: 150, vy: -150 });
 
-  let lastTime = performance.now();
-
   // メインループ
   const loop = (time: number): void => {
     const deltaTime = (time - lastTime) / 1000; // 秒単位に変換
     lastTime = time;
+
+    // FPS計測
+    fpsCounter++;
+    if (time - lastFpsUpdate >= 1000) {
+      fpsDisplay = fpsCounter;
+      fpsCounter = 0;
+      lastFpsUpdate = time;
+    }
 
     update(deltaTime, viewport);
     render(ctx);
