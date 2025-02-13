@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const app = express();
-const port = 3000;
+const port = 3005;
 
 // dist ディレクトリの静的ファイル（bundle.js）を提供
 app.use("/dist", express.static(path.join(__dirname, "dist")));
